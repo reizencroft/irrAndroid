@@ -1,0 +1,8 @@
+Author: jeff
+
+This is my work on porting irrlicht's opengles branch for android.
+
+Original SVN repo:
+https://irrlicht.svn.sourceforge.net/svnroot/irrlicht/branches/ogl-es
+
+Initial push was from revision 4073 of the said repo.
