@@ -40,7 +40,7 @@
 
 #include <memory.h>
 #include "prng.h"
-
+#include <string.h>
 /* mix a random data pool using the SHA1 compression function (as   */
 /* suggested by Peter Gutmann in his paper on random pools)         */
 
