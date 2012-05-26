@@ -45,7 +45,13 @@
 //! different library versions without having to change the sources.
 //! Example: NO_IRR_COMPILE_WITH_X11_ would disable X11
 
-
+#ifndef _IRR_COMPILE_WITH_ANDROID_DEVICE_
+	#define _IRR_COMPILE_WITH_ANDROID_DEVICE_
+	#define _IRR_ANDROID_PLATFORM_
+	#define _IRR_COMPILE_WITH_OGLES2_
+	#define _DEBUG
+	#define _IRR_POSIX_API_
+#endif
 //! Uncomment this line to compile with the SDL device
 //#define _IRR_COMPILE_WITH_SDL_DEVICE_
 #ifdef NO_IRR_COMPILE_WITH_SDL_DEVICE_
@@ -107,12 +113,12 @@
 #endif
 
 
-#if !defined(_IRR_WINDOWS_API_) && !defined(_IRR_OSX_PLATFORM_)
-#ifndef _IRR_SOLARIS_PLATFORM_
-#define _IRR_LINUX_PLATFORM_
-#endif
-#define _IRR_POSIX_API_
-#define _IRR_COMPILE_WITH_X11_DEVICE_
+#if !defined(_IRR_WINDOWS_API_) && !defined(_IRR_OSX_PLATFORM_) && !defined(_IRR_COMPILE_WITH_ANDROID_DEVICE_)
+	#ifndef _IRR_SOLARIS_PLATFORM_
+		#define _IRR_LINUX_PLATFORM_
+	#endif
+	#define _IRR_POSIX_API_
+	#define _IRR_COMPILE_WITH_X11_DEVICE_
 #endif
 
 

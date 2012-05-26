@@ -7,6 +7,7 @@ LOCAL_MODULE    := IrrlichtAndroid
 
 ### Add all source file names to be included in lib separated by a whitespace
 LOCAL_SRC_FILES := \
+					CIrrDeviceAndroid.cpp \
 					aesGladman/aescrypt.cpp \
 					aesGladman/aeskey.cpp \
 					aesGladman/aestab.cpp \
@@ -247,23 +248,11 @@ LOCAL_SRC_FILES := \
 					os.cpp	 \
 					bzip2/blocksort.c \
 					bzip2/bzcompress.c \
-					bzip2/bzip2.c \
-					bzip2/bzip2recover.c \
 					bzip2/bzlib.c \
 					bzip2/crctable.c \
 					bzip2/decompress.c \
-					bzip2/dlltest.c \
 					bzip2/huffman.c \
-					bzip2/mk251.c \
 					bzip2/randtable.c \
-					bzip2/spewG.c \
-					bzip2/unzcrash.c \
-					jpeglib/ansi2knr.c \
-					jpeglib/cdjpeg.c \
-					jpeglib/cjpeg.c \
-					jpeglib/ckconfig.c \
-					jpeglib/djpeg.c \
-					jpeglib/example.c \
 					jpeglib/jaricom.c \
 					jpeglib/jcapimin.c \
 					jpeglib/jcapistd.c \
@@ -305,45 +294,11 @@ LOCAL_SRC_FILES := \
 					jpeglib/jidctflt.c \
 					jpeglib/jidctfst.c \
 					jpeglib/jidctint.c \
-					jpeglib/jmemansi.c \
-					jpeglib/jmemdos.c \
-					jpeglib/jmemmac.c \
 					jpeglib/jmemmgr.c \
-					jpeglib/jmemname.c \
 					jpeglib/jmemnobs.c \
-					jpeglib/jpegtran.c \
 					jpeglib/jquant1.c \
 					jpeglib/jquant2.c \
 					jpeglib/jutils.c \
-					jpeglib/rdbmp.c \
-					jpeglib/rdcolmap.c \
-					jpeglib/rdgif.c \
-					jpeglib/rdjpgcom.c \
-					jpeglib/rdppm.c \
-					jpeglib/rdrle.c \
-					jpeglib/rdswitch.c \
-					jpeglib/rdtarga.c \
-					jpeglib/transupp.c \
-					jpeglib/wrbmp.c \
-					jpeglib/wrgif.c \
-					jpeglib/wrjpgcom.c \
-					jpeglib/wrppm.c \
-					jpeglib/wrrle.c \
-					jpeglib/wrtarga.c \
-					libpng/contrib/gregbook/readpng.c \
-					libpng/contrib/gregbook/readpng2.c \
-					libpng/contrib/gregbook/readppm.c \
-					libpng/contrib/gregbook/rpng-win.c \
-					libpng/contrib/gregbook/rpng-x.c \
-					libpng/contrib/gregbook/rpng2-win.c \
-					libpng/contrib/gregbook/rpng2-x.c \
-					libpng/contrib/gregbook/wpng.c \
-					libpng/contrib/gregbook/writepng.c \
-					libpng/contrib/pngminus/png2pnm.c \
-					libpng/contrib/pngminus/pnm2png.c \
-					libpng/contrib/visupng/PngFile.c \
-					libpng/contrib/visupng/VisualPng.c \
-					libpng/example.c \
 					libpng/png.c \
 					libpng/pngerror.c \
 					libpng/pngget.c \
@@ -354,7 +309,6 @@ LOCAL_SRC_FILES := \
 					libpng/pngrtran.c \
 					libpng/pngrutil.c \
 					libpng/pngset.c \
-					libpng/pngtest.c \
 					libpng/pngtrans.c \
 					libpng/pngvalid.c \
 					libpng/pngwio.c \
@@ -376,8 +330,8 @@ LOCAL_SRC_FILES := \
 					zlib/inftrees.c \
 					zlib/trees.c \
 					zlib/uncompr.c \
-					zlib/zutil.c
-
+					zlib/zutil.c 
+					
 					
 
 LOCAL_C_INCLUDES :=	\
@@ -400,7 +354,6 @@ LOCAL_STATIC_LIBRARIES := \
 
 include $(BUILD_SHARED_LIBRARY)
 
-$(call import-module,android/native_app_glue)
 
 
 
