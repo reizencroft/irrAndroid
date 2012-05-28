@@ -21,10 +21,34 @@
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
 
+
+#ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
+#include <android/log.h>
+#include <android/window.h>
+extern void* pWindow;
+#endif
+
+
 namespace irr
 {
 namespace video
 {
+	bool TestEGLError(const char* pszLocation)
+	{
+		/*
+			eglGetError returns the last error that has happened using egl,
+			not the status of the last called function. The user has to
+			check after every single egl call or at least once every frame.
+		*/
+		EGLint iErr = eglGetError();
+		if (iErr != EGL_SUCCESS)
+		{
+			__android_log_print(ANDROID_LOG_ERROR,"OGLESHelloTriangle", "%s failed (%d).\n", pszLocation, iErr);
+			return false;
+		}
+	
+		return true;
+	}
 
 //! constructor and init code
 	COGLES2Driver::COGLES2Driver(const SIrrlichtCreationParameters& params,
@@ -63,6 +87,10 @@ namespace video
 		EglDisplay = eglGetDisplay((NativeDisplayType)ExposedData.OpenGLLinux.X11Display);
 #elif defined(_IRR_COMPILE_WITH_IPHONE_DEVICE_)
 		Device = device;
+#elif defined(_IRR_COMPILE_WITH_ANDROID_DEVICE_)
+		EGLConfig			eglConfig	= 0;
+		EglWindow = (ANativeWindow*)pWindow;
+		EglDisplay = eglGetDisplay((EGLNativeDisplayType) EGL_DEFAULT_DISPLAY);	
 #endif
 		if (EglDisplay == EGL_NO_DISPLAY)
 		{
@@ -86,6 +114,20 @@ namespace video
 			os::Printer::log(text);
 		}
 
+#ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
+		EGLint attribs[11];
+		attribs[0] = EGL_RED_SIZE;
+		attribs[1] = 5;
+		attribs[2] = EGL_GREEN_SIZE;
+		attribs[3] = 6;
+		attribs[4] = EGL_BLUE_SIZE;
+		attribs[5] = 5;
+		attribs[6] = EGL_SURFACE_TYPE;
+		attribs[7] = EGL_WINDOW_BIT;
+		attribs[8] = EGL_RENDERABLE_TYPE;
+		attribs[9] = EGL_OPENGL_ES2_BIT;
+		attribs[10] = EGL_NONE;
+#else
 		EGLint attribs[] =
 		{
 			EGL_RED_SIZE, 5,
@@ -104,18 +146,29 @@ namespace video
 #endif
 			EGL_NONE, 0
 		};
+#endif
 		EGLint contextAttrib[] =
 		{
-#ifdef EGL_VERSION_1_3
 			EGL_CONTEXT_CLIENT_VERSION, 2,
-#endif
 			EGL_NONE, 0
 		};
+
 
 		EGLConfig config;
 		EGLint num_configs;
 		u32 steps=5;
-		while (!eglChooseConfig(EglDisplay, attribs, &config, 1, &num_configs) || !num_configs)
+#ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
+		if(!eglChooseConfig(EglDisplay, attribs, &config, 1, &num_configs) || num_configs != 1)
+		{
+			os::Printer::log("Could not get config for OpenGL-ES2 display.");
+			return;		
+		}
+		else
+		{
+			os::Printer::log("Got config for OpenGL-ES2 display.");
+		}
+#else
+	 	while (!eglChooseConfig(EglDisplay, attribs, &config, 1, &num_configs) || !num_configs)
 		{
 			switch (steps)
 			{
@@ -190,6 +243,19 @@ namespace video
 			os::Printer::log("No full depth buffer.");
 		if (params.Bits > attribs[9])
 			os::Printer::log("No full color buffer.");
+#endif		
+
+#ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
+		eglBindAPI(EGL_OPENGL_ES_API);
+		EGLint visualID;
+		os::Printer::log("Got ConfigAttrib");
+		eglGetConfigAttrib(EglDisplay, config, EGL_NATIVE_VISUAL_ID, &visualID);
+		TestEGLError("eglGetConfigAttrib");
+		os::Printer::log("Got ConfigAttrib");
+		ANativeWindow_setBuffersGeometry(EglWindow, 0, 0, visualID);
+		os::Printer::log("Got EglWindow");
+#endif
+
 		os::Printer::log(" Creating EglSurface with nativeWindow...");
 		EglSurface = eglCreateWindowSurface(EglDisplay, config, EglWindow, NULL);
 		if (EGL_NO_SURFACE == EglSurface)
@@ -2828,7 +2894,7 @@ namespace irr
 namespace video
 {
 
-#if defined(_IRR_COMPILE_WITH_X11_DEVICE_) || defined(_IRR_COMPILE_WITH_SDL_DEVICE_) || defined(_IRR_COMPILE_WITH_WINDOWS_DEVICE_) || defined(_IRR_COMPILE_WITH_CONSOLE_DEVICE_)
+#if defined(_IRR_COMPILE_WITH_X11_DEVICE_) || defined(_IRR_COMPILE_WITH_SDL_DEVICE_) || defined(_IRR_COMPILE_WITH_WINDOWS_DEVICE_) || defined(_IRR_COMPILE_WITH_CONSOLE_DEVICE_) || defined(_IRR_COMPILE_WITH_ANDROID_DEVICE_)
 	IVideoDriver* createOGLES2Driver(const SIrrlichtCreationParameters& params,
 			video::SExposedVideoData& data, io::IFileSystem* io)
 	{

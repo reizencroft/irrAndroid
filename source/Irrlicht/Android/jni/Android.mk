@@ -6,7 +6,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE    := IrrlichtAndroid
 
 ### Add all source file names to be included in lib separated by a whitespace
-LOCAL_SRC_FILES := \
+LOCAL_SRC_FILES := ../../examples/01.HelloWorld/main.cpp \
 					CIrrDeviceAndroid.cpp \
 					aesGladman/aescrypt.cpp \
 					aesGladman/aeskey.cpp \
@@ -310,7 +310,6 @@ LOCAL_SRC_FILES := \
 					libpng/pngrutil.c \
 					libpng/pngset.c \
 					libpng/pngtrans.c \
-					libpng/pngvalid.c \
 					libpng/pngwio.c \
 					libpng/pngwrite.c \
 					libpng/pngwtran.c \
@@ -330,7 +329,8 @@ LOCAL_SRC_FILES := \
 					zlib/inftrees.c \
 					zlib/trees.c \
 					zlib/uncompr.c \
-					zlib/zutil.c 
+					zlib/zutil.c
+					
 					
 					
 
@@ -353,6 +353,9 @@ LOCAL_STATIC_LIBRARIES := \
 				          android_native_app_glue 
 
 include $(BUILD_SHARED_LIBRARY)
+
+$(call import-module,android/native_app_glue)
+
 
 
 
