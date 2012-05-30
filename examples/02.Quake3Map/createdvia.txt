@@ -1,0 +1,1 @@
+android.bat create project --target 4 --name irrQuake3Map --path . --activity irrQuake3MapActivity --package com.irrlicht.irrquake3map
