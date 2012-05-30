@@ -327,6 +327,7 @@ namespace video
 
 	bool COGLES2Driver::genericDriverInit(const core::dimension2d<u32>& screenSize, bool stencilBuffer)
 	{
+		os::Printer::log("Called");
 		Name = glGetString(GL_VERSION);
 		printVersion();
 
@@ -1532,6 +1533,7 @@ namespace video
 				os::Printer::log("Fatal Error: Tried to set a texture not owned by this driver.", ELL_ERROR);
 				return false;
 			}
+			//{char msg[512]; sprintf(msg, "test %d %s %d", static_cast<const COGLES2Texture*>(texture)->getOGLES2TextureName(), __FILE__, __LINE__); os::Printer::print(msg);};
 			glBindTexture(GL_TEXTURE_2D,
 						static_cast<const COGLES2Texture*>(texture)->getOGLES2TextureName());
 		}

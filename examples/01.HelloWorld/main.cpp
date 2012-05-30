@@ -43,7 +43,12 @@ After we have set up the IDE, the compiler will know where to find the Irrlicht
 Engine header files so we can include it now in our code.
 */
 #include <irrlicht.h>
-
+#include "os.h"
+#ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
+#include <android/log.h>
+#include <android/window.h>
+#include <android_native_app_glue.h>
+#endif
 /*
 In the Irrlicht Engine, everything can be found in the namespace 'irr'. So if
 you want to use a class of the engine, you have to write irr:: before the name
@@ -82,10 +87,111 @@ losing platform independence then.
 #pragma comment(linker, "/subsystem:windows /ENTRY:mainCRTStartup")
 #endif
 
+struct SHelloTriangleData
+{
+	IrrlichtDevice *device;
+	IVideoDriver* driver;
+	ISceneManager* smgr;
+	IAnimatedMesh* mesh;
+	bool bAnimating;
+	struct android_app* pApp;
+};
+
+void *pWindow; 
+static void handle_cmd(struct android_app* app, int32_t cmd)
+{
+    struct SHelloTriangleData* data = (struct SHelloTriangleData*) app->userData;
+
+    switch (cmd)
+    {
+        case APP_CMD_INIT_WINDOW:
+			{
+				{char msg[512]; sprintf(msg, "test %s %d", __FILE__, __LINE__); os::Printer::print(msg);};
+				pWindow = (void*)data->pApp->window;
+				data->device = createDevice( video::EDT_OGLES2, dimension2d<u32>(640, 480), 16,
+					false, false, false, 0);
+				data->driver = data->device->getVideoDriver();
+				data->smgr = data->device->getSceneManager();
+				data->mesh = data->smgr->getMesh("/sdcard/irr/media/sydney.md2");
+				if (!data->mesh)
+				{
+					data->device->drop();
+					return;
+				}
+				IAnimatedMeshSceneNode* node = data->smgr->addAnimatedMeshSceneNode( data->mesh );
+				if (node)
+				{
+					node->setMaterialFlag(EMF_LIGHTING, false);
+					node->setMD2Animation(scene::EMAT_RUN);
+					node->setMaterialTexture( 0, data->driver->getTexture("/sdcard/irr/media/sydney.bmp") );
+				}	
+				data->smgr->addCameraSceneNode(0, vector3df(0,30,-40), vector3df(0,5,0));
+        	}
+            break;
+
+        case APP_CMD_TERM_WINDOW:
+//        	DeInitAPI(*data);
+            break;
+        case APP_CMD_GAINED_FOCUS:
+            data->bAnimating = true;
+            break;
+        case APP_CMD_LOST_FOCUS:
+            data->bAnimating = false;
+            break;
+    }
+}
+
 
 /*
 This is the main method. We can now use main() on every platform.
 */
+void android_main(struct android_app* state)
+{
+    SHelloTriangleData data;
+	memset(&data, 0, sizeof(SHelloTriangleData));
+
+	// Make sure glue isn't stripped.
+	app_dummy();
+
+	state->userData = &data;
+	state->onAppCmd = handle_cmd;
+	data.pApp = state;
+
+	for(;;)
+	{
+		// Read all pending events.
+		int ident;
+		int events;
+		struct android_poll_source* source;
+
+		// If not animating, we will block forever waiting for events.
+		// If animating, we loop until all events are read, then continue
+		// to draw the next frame of animation.
+		while((ident=ALooper_pollAll(data.bAnimating ? 0 : -1, NULL, &events, (void**)&source)) >= 0)
+		{
+			// Process this event.
+			if (source != NULL)
+			{
+				source->process(state, source);
+			}
+
+			// Check if we are exiting.
+			if (state->destroyRequested != 0)
+			{
+//				DeInitAPI(data);
+				return;
+			}
+		}
+        if(data.bAnimating && data.device->run())
+        {
+			data.driver->beginScene(true, true, SColor(255,100,101,140));
+			data.smgr->drawAll();
+			data.driver->endScene();        
+        }		
+	}
+}
+
+
 int main()
 {
 	/*
@@ -122,7 +228,7 @@ int main()
 	dimensions, etc.
 	*/
 	IrrlichtDevice *device =
-		createDevice( video::EDT_OGLES1, dimension2d<u32>(640, 480), 16,
+		createDevice( video::EDT_OGLES2, dimension2d<u32>(640, 480), 16,
 			false, false, false, 0);
 
 	if (!device)

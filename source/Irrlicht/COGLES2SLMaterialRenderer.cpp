@@ -309,7 +309,7 @@ namespace video
 
 			char *pInfoLog = new char[maxLength];
 			glGetShaderInfoLog( shaderHandle, maxLength, &length, pInfoLog );
-			os::Printer::log(pInfoLog, ELL_ERROR);
+			//os::Printer::log(pInfoLog);
 			delete [] pInfoLog;
 
 			return false;
@@ -339,7 +339,7 @@ namespace video
 
 			char *pInfoLog = new char[maxLength];
 			glGetProgramInfoLog( Program, maxLength, &length, pInfoLog );
-			os::Printer::log(pInfoLog, ELL_ERROR);
+//			os::Printer::log(pInfoLog);
 			delete [] pInfoLog;
 
 			return false;
@@ -520,6 +520,7 @@ namespace video
 		const GLuint unit = tex->getOGLES2TextureName();
 
 		glActiveTexture( GL_TEXTURE0 + unit );
+		{char msg[512]; sprintf(msg, "test %s %d", __FILE__, __LINE__); os::Printer::print(msg);};
 		glBindTexture( GL_TEXTURE_2D, unit );
 
 		return setTextureUnit( name, unit );
@@ -534,6 +535,7 @@ namespace video
 		const GLuint unit = tex->getOGLES2TextureName();
 
 		glActiveTexture( GL_TEXTURE0 + unit );
+		{char msg[512]; sprintf(msg, "test %s %d", __FILE__, __LINE__); os::Printer::print(msg);};
 		glBindTexture( GL_TEXTURE_2D, 0 );
 
 		return true;

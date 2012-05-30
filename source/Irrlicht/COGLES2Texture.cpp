@@ -51,6 +51,8 @@ namespace video
 		if ( Image )
 		{
 			glGenTextures( 1, &TextureName );
+			Driver->testGLError();
+						{char msg[512]; sprintf(msg, "test %d %s %d", TextureName,  __FILE__, __LINE__); os::Printer::print(msg);};
 			copyTexture();
 		}
 	}
@@ -205,7 +207,7 @@ namespace video
 				os::Printer::log( "Unsupported texture format", ELL_ERROR );
 				break;
 		}
-
+		{char msg[512]; sprintf(msg, "test %s %d", __FILE__, __LINE__); os::Printer::print(msg);};
 		glBindTexture( GL_TEXTURE_2D, TextureName );
 		if ( Driver->testGLError() )
 			os::Printer::log( "Could not bind Texture", ELL_ERROR );
@@ -278,6 +280,7 @@ namespace video
 			// we need to keep the correct texture bound...
 			GLint tmpTexture;
 			glGetIntegerv( GL_TEXTURE_BINDING_2D, &tmpTexture );
+			{char msg[512]; sprintf(msg, "test %s %d", __FILE__, __LINE__); os::Printer::print(msg);};
 			glBindTexture( GL_TEXTURE_2D, TextureName );
 
 			// TODO ogl-es
@@ -299,6 +302,7 @@ namespace video
 			Image->unlock();
 
 			//reset old bound texture
+			{char msg[512]; sprintf(msg, "test %s %d", __FILE__, __LINE__); os::Printer::print(msg);};
 			glBindTexture( GL_TEXTURE_2D, tmpTexture );
 		}
 		return Image->lock();
@@ -439,6 +443,7 @@ namespace video
 	//! Unbind Render Target Texture
 	void COGLES2Texture::unbindRTT()
 	{
+		{char msg[512]; sprintf(msg, "test %s %d", __FILE__, __LINE__); os::Printer::print(msg);};
 		glBindTexture( GL_TEXTURE_2D, getOGLES2TextureName() );
 
 		// Copy Our ViewPort To The Texture
@@ -496,6 +501,7 @@ namespace video
 
 		// generate color texture
 		glGenTextures(1, &TextureName);
+		{char msg[512]; sprintf(msg, "test %s %d", __FILE__, __LINE__); os::Printer::print(msg);};
 		glBindTexture(GL_TEXTURE_2D, TextureName);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

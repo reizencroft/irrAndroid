@@ -7,6 +7,21 @@
 
 #ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/utsname.h>
+#include <time.h>
+#include "IEventReceiver.h"
+#include "os.h"
+#include "CTimer.h"
+#include "irrString.h"
+#include "Keycodes.h"
+#include "COSOperator.h"
+#include "CColorConverter.h"
+#include "SIrrCreationParameters.h"
+#include "SExposedVideoData.h"
+
+
 #include "os.h"
 	
 #include <android/log.h>
@@ -92,12 +107,27 @@ bool CIrrDeviceAndroid::run()
 //! Pause the current process for the minimum time allowed only to allow other processes to execute
 void CIrrDeviceAndroid::yield()
 {
-
+	struct timespec ts = {0,0};
+	nanosleep(&ts, NULL);
 }
 
 //! Pause execution and let other processes to run for a specified amount of time.
 void CIrrDeviceAndroid::sleep(u32 timeMs, bool pauseTimer=false)
 {
+	const bool wasStopped = Timer ? Timer->isStopped() : true;
+
+	struct timespec ts;
+	ts.tv_sec = (time_t) (timeMs / 1000);
+	ts.tv_nsec = (long) (timeMs % 1000) * 1000000;
+
+	if (pauseTimer && !wasStopped)
+		Timer->stop();
+
+	nanosleep(&ts, NULL);
+
+	if (pauseTimer && !wasStopped)
+		Timer->start();
+
 }
 
 //! sets the caption of the window

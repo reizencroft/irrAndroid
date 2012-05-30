@@ -23,7 +23,7 @@ attribute vec4 inTexCoord0;
 attribute vec4 inTexCoord1;
 attribute vec3 inVertexNormal;
 
-uniform int uRenderMode;
+uniform lowp int uRenderMode;
 
 /* Matrix Uniforms */
 

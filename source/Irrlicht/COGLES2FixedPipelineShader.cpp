@@ -250,6 +250,7 @@ namespace video
 			UseTexture[i] = material.getTexture(i) != 0;
 			if (UseTexture[i])
 			{
+				os::Printer::log("material set");
 				UseTexMatrix[i] = false;
 				const core::matrix4& texMat = material.getTextureMatrix(i);
 				if (!texMat.isIdentity())

@@ -201,8 +201,12 @@ if using this driver, to avoid problems with the ogl-es emulators.
 #ifdef NO_IRR_COMPILE_WITH_OGLES2_
 #undef _IRR_COMPILE_WITH_OGLES2_
 #endif
-#ifndef IRR_OGLES2_SHADER_PATH 
+#ifndef IRR_OGLES2_SHADER_PATH
+#ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
+#define IRR_OGLES2_SHADER_PATH "/sdcard/irr/media/Shaders/"
+#else
 #define IRR_OGLES2_SHADER_PATH "../../media/Shaders/"
+#endif
 #endif
 
 //! Define _IRR_COMPILE_WITH_SOFTWARE_ to compile the Irrlicht engine with software driver
@@ -283,7 +287,7 @@ define out. */
 //! Define _IRR_COMPILE_WITH_GUI_ to compile the engine with the built-in GUI
 /** Disable this if you are using an external library to draw the GUI. If you disable this then
 you will not be able to use anything provided by the GUI Environment, including loading fonts. */
-#define _IRR_COMPILE_WITH_GUI_
+//#define _IRR_COMPILE_WITH_GUI_
 #ifdef NO_IRR_COMPILE_WITH_GUI_
 #undef _IRR_COMPILE_WITH_GUI_
 #endif
