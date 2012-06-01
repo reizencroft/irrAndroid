@@ -25,7 +25,6 @@
 #ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
 #include <android/log.h>
 #include <android/window.h>
-extern void* pWindow;
 #endif
 
 
@@ -43,7 +42,6 @@ namespace video
 		EGLint iErr = eglGetError();
 		if (iErr != EGL_SUCCESS)
 		{
-			__android_log_print(ANDROID_LOG_ERROR,"OGLESHelloTriangle", "%s failed (%d).\n", pszLocation, iErr);
 			return false;
 		}
 	
@@ -89,7 +87,7 @@ namespace video
 		Device = device;
 #elif defined(_IRR_COMPILE_WITH_ANDROID_DEVICE_)
 		EGLConfig			eglConfig	= 0;
-		EglWindow = (ANativeWindow*)pWindow;
+		EglWindow = (ANativeWindow*)params.Window;
 		EglDisplay = eglGetDisplay((EGLNativeDisplayType) EGL_DEFAULT_DISPLAY);	
 #endif
 		if (EglDisplay == EGL_NO_DISPLAY)
@@ -114,20 +112,6 @@ namespace video
 			os::Printer::log(text);
 		}
 
-#ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
-		EGLint attribs[11];
-		attribs[0] = EGL_RED_SIZE;
-		attribs[1] = 5;
-		attribs[2] = EGL_GREEN_SIZE;
-		attribs[3] = 6;
-		attribs[4] = EGL_BLUE_SIZE;
-		attribs[5] = 5;
-		attribs[6] = EGL_SURFACE_TYPE;
-		attribs[7] = EGL_WINDOW_BIT;
-		attribs[8] = EGL_RENDERABLE_TYPE;
-		attribs[9] = EGL_OPENGL_ES2_BIT;
-		attribs[10] = EGL_NONE;
-#else
 		EGLint attribs[] =
 		{
 			EGL_RED_SIZE, 5,
@@ -146,7 +130,6 @@ namespace video
 #endif
 			EGL_NONE, 0
 		};
-#endif
 		EGLint contextAttrib[] =
 		{
 			EGL_CONTEXT_CLIENT_VERSION, 2,
