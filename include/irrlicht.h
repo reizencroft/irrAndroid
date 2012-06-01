@@ -328,7 +328,11 @@ namespace irr
 		bool fullscreen = false,
 		bool stencilbuffer = false,
 		bool vsync = false,
-		IEventReceiver* receiver = 0);
+		IEventReceiver* receiver = 0
+#ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
+		, void* window = 0
+#endif
+		);
 
 	//! typedef for Function Pointer
 	typedef IrrlichtDevice* (IRRCALLCONV *funcptr_createDevice )(

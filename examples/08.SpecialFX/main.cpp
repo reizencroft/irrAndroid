@@ -17,10 +17,18 @@ runs slow on your hardware.
 #include "driverChoice.h"
 
 using namespace irr;
+#ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
+#include <android/log.h>
+#include <android/window.h>
+#include <android_native_app_glue.h>
+#endif
+
 
 #ifdef _MSC_VER
 #pragma comment(lib, "Irrlicht.lib")
 #endif
+
+#ifndef _IRR_COMPILE_WITH_ANDROID_DEVICE_
 
 int main()
 {
@@ -328,6 +336,11 @@ int main()
 
 	return 0;
 }
+#endif
+
+#ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
+#endif
+
 
 /*
 **/

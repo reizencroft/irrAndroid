@@ -43,8 +43,12 @@ namespace irr
 			LoggingLevel(ELL_INFORMATION),
 #endif
 			DisplayAdapter(0),
+#ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
+			Window(0),
+#endif
 			UsePerformanceTimer(true),
 			SDK_version_do_not_use(IRRLICHT_SDK_VERSION)
+			
 		{
 		}
 
@@ -74,6 +78,9 @@ namespace irr
 			LoggingLevel = other.LoggingLevel;
 			DisplayAdapter = other.DisplayAdapter;
 			UsePerformanceTimer = other.UsePerformanceTimer;
+#ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
+			Window = other.Window;
+#endif
 			return *this;
 		}
 
@@ -274,6 +281,12 @@ namespace irr
 		problems with speed stepping and other techniques.
 		*/
 		bool UsePerformanceTimer;
+
+		//! For android device
+#ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
+		void *Window;
+#endif
+
 
 		//! Don't use or change this parameter.
 		/** Always set it to IRRLICHT_SDK_VERSION, which is done by default.

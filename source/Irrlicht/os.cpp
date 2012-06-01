@@ -6,9 +6,9 @@
 #include "irrString.h"
 #include "IrrCompileConfig.h"
 #include "irrMath.h"
-#include <android/log.h>
-
-
+#if defined(_IRR_COMPILE_WITH_ANDROID_DEVICE_)
+	#include <android/log.h>
+#endif
 #if defined(_IRR_COMPILE_WITH_SDL_DEVICE_)
 	#include <SDL/SDL_endian.h>
 	#define bswap_16(X) SDL_Swap16(X)

@@ -13,6 +13,14 @@ and an additional file to be able to ask the user for a driver type using the
 console.
 */
 #include <irrlicht.h>
+#include "os.h"
+
+#ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
+#include <android/log.h>
+#include <android/window.h>
+#include <android_native_app_glue.h>
+#endif
+
 
 /*
 As already written in the HelloWorld example, in the Irrlicht Engine everything
@@ -38,6 +46,7 @@ easy, we use a pragma comment lib:
 /*
 Ok, lets start. Again, we use the main() method as start, not the WinMain().
 */
+#ifndef _IRR_COMPILE_WITH_ANDROID_DEVICE_
 int main()
 {
 	/*
@@ -176,7 +185,120 @@ int main()
 	device->drop();
 	return 0;
 }
-
+#endif
 /*
 That's it. Compile and play around with the program.
 **/
+
+//here's the real android code
+
+struct AppData
+{
+	IrrlichtDevice *device;
+	irr::video::IVideoDriver* driver;
+	irr::scene::ISceneManager* smgr;
+//	irr::scene::IAnimatedMesh* mesh;
+	bool bAnimating;
+	struct android_app* pApp;
+};
+
+static void handle_cmd(struct android_app* app, int32_t cmd)
+{
+    struct AppData* data = (struct AppData*) app->userData;
+
+    switch (cmd)
+    {
+        case APP_CMD_INIT_WINDOW:
+			{
+				data->device = createDevice( video::EDT_OGLES2, 
+								core::dimension2d<u32>(800, 480), //TODO[reizen]: doesn't work at the moment, always max resolution
+								16,
+								false, 
+								false, 
+								false, 
+								0,
+								(void*)data->pApp->window);
+				data->driver = data->device->getVideoDriver();
+				data->smgr = data->device->getSceneManager();
+				data->device->getFileSystem()->addFileArchive("/sdcard/irr/media/map-20kdm2.pk3");
+				scene::IAnimatedMesh* mesh = data->smgr->getMesh("20kdm2.bsp");
+				scene::ISceneNode* node = 0;
+				if (mesh)
+					node = data->smgr->addOctreeSceneNode(mesh->getMesh(0), 0, -1, 1024);
+				if (node)
+					node->setPosition(core::vector3df(-1300,-100,-1400));	
+				data->smgr->addCameraSceneNodeFPS();
+				//data->device->getCursorControl()->setVisible(false);
+        	}
+            break;
+
+        case APP_CMD_TERM_WINDOW:
+//        	DeInitAPI(*data);
+            break;
+        case APP_CMD_GAINED_FOCUS:
+            data->bAnimating = true;
+            break;
+        case APP_CMD_LOST_FOCUS:
+            data->bAnimating = false;
+            break;
+    }
+}
+
+/*
+This is the main method. We can now use main() on every platform.
+*/
+void android_main(struct android_app* state)
+{
+    AppData data;
+	memset(&data, 0, sizeof(AppData));
+	os::Printer::print("wazzup");
+
+	// Make sure glue isn't stripped.
+	app_dummy();
+
+	state->userData = &data;
+	state->onAppCmd = handle_cmd;
+	data.pApp = state;
+	int lastFPS = -1;
+
+	for(;;)
+	{
+		// Read all pending events.
+		int ident;
+		int events;
+		struct android_poll_source* source;
+
+		// If not animating, we will block forever waiting for events.
+		// If animating, we loop until all events are read, then continue
+		// to draw the next frame of animation.
+		while((ident=ALooper_pollAll(data.bAnimating ? 0 : -1, NULL, &events, (void**)&source)) >= 0)
+		{
+			// Process this event.
+			if (source != NULL)
+			{
+				source->process(state, source);
+			}
+
+			// Check if we are exiting.
+			if (state->destroyRequested != 0)
+			{
+				data.device->drop();
+//				DeInitAPI(data);
+				return;
+			}
+		}
+        if(data.bAnimating && data.device->run())
+        {     
+			if (data.device->isWindowActive())
+			{
+				data.driver->beginScene(true, true, video::SColor(255,200,200,200));
+				data.smgr->drawAll();
+				data.driver->endScene();
+			}
+			else
+				data.device->yield();			
+        }		
+	}
+}
+
+

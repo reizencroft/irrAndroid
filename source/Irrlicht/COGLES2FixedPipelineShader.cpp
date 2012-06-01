@@ -18,6 +18,45 @@ namespace video
 
 	const char* const COGLES2FixedPipelineShader::sBuiltInShaderUniformNames[] =
 	{
+#ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
+		"uRenderMode",
+		"uMvpMatrix",
+		"uWorldMatrix",
+		"uNormalize",
+		"uEyePos",
+		"uUseLight[0]",
+		"uLightPosition[0]",
+		"uLightAmbient[0]",
+		"uLightDiffuse[0]",
+		"uLightSpecular[0]",
+		"uLightDirection[0]",
+		"uLightAttenuation[0]",
+		"uLightExponent[0]",
+		"uLightCutoff[0]",
+		"uAmbientColor",
+		"uLighting",
+		"uMaterialAmbient",
+		"uMaterialEmission",
+		"uMaterialDiffuse",
+		"uMaterialSpec",
+		"uMaterialShine",
+		"uColorMaterial",
+		"uUseTexture[0]",
+		"uTextureMatrix[0]",
+		"uUseTexMatrix[0]",
+		"uClip",
+		"uClipPlane",
+		"uAlphaTest",
+		"uAlphaValue",
+		"uFog",
+		"uFogType",
+		"uFogColor",
+		"uFogStart",
+		"uFogEnd",
+		"uFogDensity",
+		"uTextureUnit0",
+		"uTextureUnit1",
+#else
 		"uRenderMode",
 		"uMvpMatrix",
 		"uWorldMatrix",
@@ -55,6 +94,7 @@ namespace video
 		"uFogDensity",
 		"uTextureUnit0",
 		"uTextureUnit1",
+#endif
 		0
 	};
 
@@ -250,7 +290,6 @@ namespace video
 			UseTexture[i] = material.getTexture(i) != 0;
 			if (UseTexture[i])
 			{
-				os::Printer::log("material set");
 				UseTexMatrix[i] = false;
 				const core::matrix4& texMat = material.getTextureMatrix(i);
 				if (!texMat.isIdentity())

@@ -56,7 +56,11 @@ namespace irr
 	IRRLICHT_API IrrlichtDevice* IRRCALLCONV createDevice(video::E_DRIVER_TYPE driverType,
 			const core::dimension2d<u32>& windowSize,
 			u32 bits, bool fullscreen,
-			bool stencilbuffer, bool vsync, IEventReceiver* res)
+			bool stencilbuffer, bool vsync, IEventReceiver* res
+#ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
+			,void* window
+#endif
+	)
 	{
 		SIrrlichtCreationParameters p;
 		p.DriverType = driverType;
@@ -66,6 +70,9 @@ namespace irr
 		p.Stencilbuffer = stencilbuffer;
 		p.Vsync = vsync;
 		p.EventReceiver = res;
+#ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
+		p.Window = window;
+#endif
 
 		return createDeviceEx(p);
 	}

@@ -45,11 +45,15 @@
 //! different library versions without having to change the sources.
 //! Example: NO_IRR_COMPILE_WITH_X11_ would disable X11
 
-#ifndef _IRR_COMPILE_WITH_ANDROID_DEVICE_
+#define NO_IRR_COMPILE_WITH_DIRECT3D_8_
+#define NO_IRR_COMPILE_WITH_DIRECT3D_9_
+#define NO_IRR_COMPILE_WITH_JOYSTICK_EVENTS_
+
+#if !defined(_IRR_COMPILE_WITH_ANDROID_DEVICE_) && !defined(_WIN32)
 	#define _IRR_COMPILE_WITH_ANDROID_DEVICE_
 	#define _IRR_ANDROID_PLATFORM_
 	#define _IRR_COMPILE_WITH_OGLES2_
-	#define _DEBUG
+	//#define _DEBUG
 	#define _IRR_POSIX_API_
 #endif
 //! Uncomment this line to compile with the SDL device

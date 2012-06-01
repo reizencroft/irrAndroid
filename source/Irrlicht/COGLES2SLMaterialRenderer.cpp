@@ -394,9 +394,15 @@ namespace video
 			}
 			else
 			{
+#ifdef	_IRR_COMPILE_WITH_ANDROID_DEVICE_
+				char buf[512];
+				sprintf( buf, "Unable to find uniform : %s", UniformStringTable[i] );
+				os::Printer::log( buf );
+#else
 				wchar_t buf[512];
 				swprintf( buf, 512, L"Unable to find uniform : %S", UniformStringTable[i] );
 				os::Printer::log( buf, ELL_WARNING );
+#endif
 				SUniformInfo blank;
 				blank.location = -1;
 				blank.type = GL_INVALID_ENUM;
