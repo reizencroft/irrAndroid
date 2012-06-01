@@ -5,6 +5,8 @@
 // For conditions of distribution and use, see copyright notice in Irrlicht.h
 #define MAX_TEXTURE_UNITS 4
 #define MAX_LIGHTS 8
+#define USE_SPECULAR
+#define USE_LIGHT_CUTOFF
 
 #define SphereMap        10
 #define Reflection2Layer 11
@@ -55,8 +57,8 @@ uniform bool  uLighting;
 uniform vec4  uMaterialAmbient;
 uniform vec4  uMaterialEmission;
 uniform vec4  uMaterialDiffuse;
-uniform vec4  uMaterialSpecular;
-uniform float uMaterialShininess;
+uniform vec4  uMaterialSpec;
+uniform float uMaterialShine;
 uniform int   uColorMaterial;
 
 #define ECM_NONE     0
@@ -144,7 +146,7 @@ vec4 lightEquation(int lidx)
 		float NdotH = dot(gNormal, hvec);
 		if(NdotH > 0.0)
 		{
-			color += pow(NdotH, uMaterialShininess) * uLightSpecular[lidx] * gMaterial.Specular;
+			color += pow(NdotH, uMaterialShine) * uLightSpecular[lidx] * gMaterial.Specular;
 		}
 #endif
 		color *= att;
@@ -172,8 +174,8 @@ void ReplaceColorMaterial(void)
 	gMaterial.Ambient = uMaterialAmbient;
 	gMaterial.Diffuse = uMaterialDiffuse;
 	gMaterial.Emission = uMaterialEmission;
-	gMaterial.Specular = uMaterialSpecular;
-	gMaterial.Shininess = uMaterialShininess;
+	gMaterial.Specular = uMaterialSpec;
+	gMaterial.Shininess = uMaterialShine;
 
 	if(uColorMaterial == ECM_DIFFUSE)
 		gMaterial.Diffuse = gColor;
