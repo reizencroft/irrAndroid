@@ -13,11 +13,14 @@ runs slow on your hardware.
 */
 
 #include <irrlicht.h>
+#ifndef _IRR_COMPILE_WITH_ANDROID_DEVICE_
 #include <iostream>
 #include "driverChoice.h"
+#endif
 
 using namespace irr;
 #ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
+#include "os.h"
 #include <android/log.h>
 #include <android/window.h>
 #include <android_native_app_glue.h>
@@ -117,7 +120,7 @@ int main()
 			node->setMaterialTexture(0, driver->getTexture("../../media/stones.jpg"));
 			node->setMaterialTexture(1, driver->getTexture("../../media/water.jpg"));
 
-			node->setMaterialType(video::EMT_REFLECTION_2_LAYER);
+			//node->setMaterialType(video::EMT_REFLECTION_2_LAYER);
 		}
 	}
 
@@ -339,6 +342,246 @@ int main()
 #endif
 
 #ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
+struct AppData
+{
+	IrrlichtDevice *device;
+	irr::video::IVideoDriver* driver;
+	irr::scene::ISceneManager* smgr;
+	bool bAnimating;
+	struct android_app* pApp;
+};
+static void handle_cmd(struct android_app* app, int32_t cmd)
+{
+    struct AppData* data = (struct AppData*) app->userData;
+
+    switch (cmd)
+    {
+        case APP_CMD_INIT_WINDOW:
+			{
+				data->device = createDevice( video::EDT_OGLES2, 
+								core::dimension2d<u32>(800, 480), //TODO[reizen]: doesn't work at the moment, always max resolution
+								16,
+								false, 
+								false, 
+								false, 
+								0,
+								(void*)data->pApp->window);
+					data->driver = data->device->getVideoDriver();
+					data->smgr = data->device->getSceneManager();
+					scene::ISceneNode* node = 0;	
+					scene::IAnimatedMesh* mesh = data->smgr->getMesh("/sdcard/irr/media/room.3ds");
+					if (mesh)
+					{
+						data->smgr->getMeshManipulator()->makePlanarTextureMapping(mesh->getMesh(0), 0.004f);
+				
+						node = data->smgr->addAnimatedMeshSceneNode(mesh);
+						if (node)
+						{
+							((scene::IAnimatedMeshSceneNode*)node)->addShadowVolumeSceneNode();
+							node->setMaterialTexture(0, data->driver->getTexture("/sdcard/irr/media/wall.jpg"));
+							node->getMaterial(0).SpecularColor.set(0,0,0,0);
+						}
+					}
+					mesh = 0;
+				
+					if (mesh)
+					{
+						node = data->smgr->addWaterSurfaceSceneNode(mesh->getMesh(0), 3.0f, 300.0f, 30.0f);
+						if (node)
+						{
+							node->setPosition(core::vector3df(0,7,0));
+				
+							node->setMaterialTexture(0, data->driver->getTexture("/sdcard/irr/media/stones.jpg"));
+							node->setMaterialTexture(1, data->driver->getTexture("/sdcard/irr/media/water.jpg"));
+				
+							node->setMaterialType(video::EMT_REFLECTION_2_LAYER);
+						}
+					}
+				
+					// create light
+				
+					node = data->smgr->addLightSceneNode(0, core::vector3df(0,0,0),
+						video::SColorf(1.0f, 0.6f, 0.7f, 1.0f), 800.0f);
+					if (node)
+					{
+						scene::ISceneNodeAnimator* anim = 0;
+						anim = data->smgr->createFlyCircleAnimator (core::vector3df(0,150,0),250.0f);
+						node->addAnimator(anim);
+						anim->drop();
+					}
+				
+					// attach billboard to light
+				
+					node = data->smgr->addBillboardSceneNode(node, core::dimension2d<f32>(50, 50));
+					if (node)
+					{
+						node->setMaterialFlag(video::EMF_LIGHTING, false);
+						node->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
+						node->setMaterialTexture(0, data->driver->getTexture("/sdcard/irr/media/particlewhite.bmp"));
+					}
+				
+					scene::IVolumeLightSceneNode * n = data->smgr->addVolumeLightSceneNode(0, -1,
+								32, 							 // Subdivisions on U axis
+								32, 							 // Subdivisions on V axis
+								video::SColor(0, 255, 255, 255), // foot color
+								video::SColor(0, 0, 0, 0)); 	 // tail color
+				
+					if (n)
+					{
+						n->setScale(core::vector3df(56.0f, 56.0f, 56.0f));
+						n->setPosition(core::vector3df(-120,50,40));
+				
+						// load textures for animation
+						core::array<video::ITexture*> textures;
+						for (s32 g=7; g > 0; --g)
+						{
+							core::stringc tmp;
+							tmp = "/sdcard/irr/media/portal";
+							tmp += g;
+							tmp += ".bmp";
+							video::ITexture* t = data->driver->getTexture( tmp.c_str() );
+							textures.push_back(t);
+						}
+				
+						// create texture animator
+						scene::ISceneNodeAnimator* glow = data->smgr->createTextureAnimator(textures, 150);
+				
+						// add the animator
+						n->addAnimator(glow);
+				
+						// drop the animator because it was created with a create() function
+						glow->drop();
+					}
+				
+				
+					// create a particle system
+				
+					scene::IParticleSystemSceneNode* ps = 
+						data->smgr->addParticleSystemSceneNode(false);
+				
+					if (ps)
+					{
+						scene::IParticleEmitter* em = ps->createBoxEmitter(
+							core::aabbox3d<f32>(-7,0,-7,7,1,7), // emitter size
+							core::vector3df(0.0f,0.06f,0.0f),	// initial direction
+							80,100, 							// emit rate
+							video::SColor(0,255,255,255),		// darkest color
+							video::SColor(0,255,255,255),		// brightest color
+							800,2000,0, 						// min and max age, angle
+							core::dimension2df(10.f,10.f),		   // min size
+							core::dimension2df(20.f,20.f)); 	   // max size
+				
+						if (em)
+						{
+							ps->setEmitter(em); // this grabs the emitter
+							em->drop(); // so we can drop it here without deleting it
+						}
+				
+						scene::IParticleAffector* paf = ps->createFadeOutParticleAffector();
+				
+						if (paf)
+						{
+							ps->addAffector(paf); // same goes for the affector
+							paf->drop();
+						}
+				
+						ps->setPosition(core::vector3df(-70,60,40));
+						ps->setScale(core::vector3df(2,2,2));
+						ps->setMaterialFlag(video::EMF_LIGHTING, false);
+				//		ps->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
+						ps->setMaterialTexture(0, data->driver->getTexture("/sdcard/irr/media/fire.bmp"));
+						ps->setMaterialType(video::EMT_TRANSPARENT_VERTEX_ALPHA);
+					}
+				
+					// add animated character
+				
+					mesh = data->smgr->getMesh("/sdcard/irr/media/dwarf.x");
+					scene::IAnimatedMeshSceneNode* anode = 0;
+				
+					anode = data->smgr->addAnimatedMeshSceneNode(mesh);
+					anode->setPosition(core::vector3df(-50,20,-60));
+					anode->setAnimationSpeed(15);
+				
+					// add shadow
+					anode->addShadowVolumeSceneNode();
+					data->smgr->setShadowColor(video::SColor(150,0,0,0));
+				
+					// make the model a little bit bigger and normalize its normals
+					// because of the scaling, for correct lighting
+					anode->setScale(core::vector3df(2,2,2));
+					anode->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
+				
+				
+					scene::ICameraSceneNode* camera = data->smgr->addCameraSceneNodeFPS();
+					camera->setPosition(core::vector3df(-100,50,-200));
+
+        	}
+            break;
+
+        case APP_CMD_TERM_WINDOW:
+            break;
+        case APP_CMD_GAINED_FOCUS:
+            data->bAnimating = true;
+            break;
+        case APP_CMD_LOST_FOCUS:
+            data->bAnimating = false;
+            break;
+    }
+}
+
+void android_main(struct android_app* state)
+{
+    AppData data;
+	memset(&data, 0, sizeof(AppData));
+
+	// Make sure glue isn't stripped.
+	app_dummy();
+
+	state->userData = &data;
+	state->onAppCmd = handle_cmd;
+	data.pApp = state;
+	int lastFPS = -1;
+
+	for(;;)
+	{
+		// Read all pending events.
+		int ident;
+		int events;
+		struct android_poll_source* source;
+
+		// If not animating, we will block forever waiting for events.
+		// If animating, we loop until all events are read, then continue
+		// to draw the next frame of animation.
+		while((ident=ALooper_pollAll(data.bAnimating ? 0 : -1, NULL, &events, (void**)&source)) >= 0)
+		{
+			// Process this event.
+			if (source != NULL)
+			{
+				source->process(state, source);
+			}
+
+			// Check if we are exiting.
+			if (state->destroyRequested != 0)
+			{
+				data.device->drop();
+//				DeInitAPI(data);
+				return;
+			}
+		}
+        if(data.bAnimating && data.device->run())
+        {     
+			if (data.device->isWindowActive())
+			{
+				data.driver->beginScene(true, true, video::SColor(255,200,200,200));
+				data.smgr->drawAll();
+				data.driver->endScene();
+			}
+			else
+				data.device->yield();			
+        }		
+	}
+}
+
 #endif
 
 

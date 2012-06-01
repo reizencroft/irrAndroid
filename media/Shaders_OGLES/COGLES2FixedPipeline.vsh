@@ -23,7 +23,7 @@ attribute vec4 inTexCoord0;
 attribute vec4 inTexCoord1;
 attribute vec3 inVertexNormal;
 
-uniform int uRenderMode;
+uniform lowp int uRenderMode;
 
 /* Matrix Uniforms */
 
@@ -55,8 +55,8 @@ uniform bool  uLighting;
 uniform vec4  uMaterialAmbient;
 uniform vec4  uMaterialEmission;
 uniform vec4  uMaterialDiffuse;
-uniform vec4  uMaterialSpecular;
-uniform float uMaterialShininess;
+uniform vec4  uMaterialSpec;
+uniform float uMaterialShine;
 uniform int   uColorMaterial;
 
 #define ECM_NONE     0
@@ -144,7 +144,7 @@ vec4 lightEquation(int lidx)
 		float NdotH = dot(gNormal, hvec);
 		if(NdotH > 0.0)
 		{
-			color += pow(NdotH, uMaterialShininess) * uLightSpecular[lidx] * gMaterial.Specular;
+			color += pow(NdotH, uMaterialShine) * uLightSpecular[lidx] * gMaterial.Specular;
 		}
 #endif
 		color *= att;
@@ -172,8 +172,8 @@ void ReplaceColorMaterial(void)
 	gMaterial.Ambient = uMaterialAmbient;
 	gMaterial.Diffuse = uMaterialDiffuse;
 	gMaterial.Emission = uMaterialEmission;
-	gMaterial.Specular = uMaterialSpecular;
-	gMaterial.Shininess = uMaterialShininess;
+	gMaterial.Specular = uMaterialSpec;
+	gMaterial.Shininess = uMaterialShine;
 
 	if(uColorMaterial == ECM_DIFFUSE)
 		gMaterial.Diffuse = gColor;
