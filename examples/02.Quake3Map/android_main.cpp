@@ -233,7 +233,6 @@ static void handle_cmd(struct android_app* app, int32_t cmd)
             break;
 
         case APP_CMD_TERM_WINDOW:
-//        	DeInitAPI(*data);
             break;
         case APP_CMD_GAINED_FOCUS:
             data->bAnimating = true;
