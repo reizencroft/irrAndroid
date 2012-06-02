@@ -6,3 +6,11 @@ Original SVN repo:
 https://irrlicht.svn.sourceforge.net/svnroot/irrlicht/branches/ogl-es
 
 Initial push was from revision 4073 of the said repo.
+
+20120602 - Update:
+So far it is now compiling and running. Using the Android NDK r8. I haven't tried to compile it using Eclipse, just the plain old Cygwin terminal.
+
+I have provided a Android.mk for compiling the Irrlicht static library. To build an example, just go to the example folder and issue an ndk-build on the directory. To run the example, copy/push the contents of media folder to /sdcard/irr/media or just change the destination folder.
+The example that I have provided a Makefile are:
+03. Quake3Map
+08. SpecialFX
