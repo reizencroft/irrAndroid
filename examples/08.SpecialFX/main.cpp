@@ -23,7 +23,10 @@ using namespace irr;
 #include "os.h"
 #include <android/log.h>
 #include <android/window.h>
+#include <android/sensor.h>
 #include <android_native_app_glue.h>
+#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "sensor", __VA_ARGS__))
+#define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
 #endif
 
 
@@ -529,6 +532,26 @@ static void handle_cmd(struct android_app* app, int32_t cmd)
     }
 }
 
+/**
+ * Process the next input event.
+ */
+static int32_t handle_input(struct android_app* app, AInputEvent* event) {
+    struct AppData* engine = (struct AppData*)app->userData;
+	float x = 0.0f;
+	float y = 0.0f;
+	int pc = 0;
+	int action = 0;
+    if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
+		pc = AMotionEvent_getPointerCount(event);
+		action = AMotionEvent_getAction(event);
+        x = AMotionEvent_getX(event, 0);
+        y = AMotionEvent_getY(event, 0);
+		LOGI("%x count: %d  x:%f y:$f", action, pc, x, y);
+        return 1;
+    }
+    return 0;
+}
+
 void android_main(struct android_app* state)
 {
     AppData data;
@@ -539,6 +562,7 @@ void android_main(struct android_app* state)
 
 	state->userData = &data;
 	state->onAppCmd = handle_cmd;
+	state->onInputEvent = handle_input;
 	data.pApp = state;
 	int lastFPS = -1;
 
